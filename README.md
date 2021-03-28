@@ -49,21 +49,45 @@ This is a sample chart to demonstrate running it on IBM Cloud
 1. To install the chart with the release named `kubernetes-external-secrets-release`:
 
     ```bash
-    $ git clone https://github.com/no9/kubernetes-external-secrets-sample.git
-    $ cd kubernetes-external-secrets-sample
+    $ git clone https://github.com/external-secrets/kubernetes-external-secrets.git
+    $ cd kubernetes-external-secrets
+    ```
+
+1. Edit the following values in the values.yaml in the kubernetes-external-secrets repo. The file `values-exanple.yaml` in this repo is there for reference.
+    ```
+  IBM_CLOUD_SECRETS_MANAGER_API_APIKEY:
+    secretKeyRef: ibmcloud-credentials
+    key: apikey
+  IBM_CLOUD_SECRETS_MANAGER_API_ENDPOINT:
+    secretKeyRef: ibmcloud-credentials
+    key: endpoint
+  IBM_CLOUD_SECRETS_MANAGER_API_AUTH_TYPE:
+    secretKeyRef: ibmcloud-credentials
+    key: authtype
+
+  image:
+    repository: ghcr.io/external-secrets/kubernetes-external-secrets
+    tag: master
+    ```
+
+1. To install the chart with the release named `kubernetes-external-secrets-release`:
+    ```
     $ helm install kubernetes-external-secrets-release . --skip-crds
     ```
     > **Tip:** A namespace can be specified by the `Helm` option '`--namespace kube-external-secrets`', however know this will not [autocreate a namespace](https://helm.sh/docs/faq/#automatically-creating-namespaces) like in Helm V2. To do that, also add the `--create-namespace` flag.
 
     > **Note**: `--skip-crds` is required in order to ensure the custom resource manager is used and will work for backwards compatibility. In future 4.x releases, this will not be required. See below for how to [disable the custom resource manager](#installing-the-crd) via the chart.
 
-1. Create a secret in Secret Manager 
+1. Now the service is installed we need to create a secret in Secret Manager that we will make available in k8s. 
     ```
     $ export IBM_CLOUD_SECRETS_MANAGER_API_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
+    $ ibmcloud secrets-manager secret-create --secret-type username_password --metadata '{"collection_type": "application/vnd.ibm.secrets-manager.secret+json", "collection_total": 1}'  --resources '[{"name": "example-username-password-test-secret","description": "Extended description for my secret.","username": "user123","password": "cloudy-rainy-coffee-book"}]'
+    
     ..id..
     ..zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz.. 
     ```
-1. Get the id from the output of the created secret and add update the `key` field in `ibmcloud-secrets-manager-example.yml`
+1. Now we will create a CRD that will pull the secrets from the secret manager and add it to the namespace in the cluster. 
+   Get the id from the output of the created secret and add update the `key` field in `ibmcloud-secrets-manager-example.yml`
 
     ```
     apiVersion: kubernetes-client.io/v1
