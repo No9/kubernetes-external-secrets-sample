@@ -54,20 +54,22 @@ This is a sample chart to demonstrate running it on IBM Cloud
     ```
 
 1. Edit the following values in the values.yaml in the kubernetes-external-secrets repo. The file `values-exanple.yaml` in this repo is there for reference.
+
     ```
-  IBM_CLOUD_SECRETS_MANAGER_API_APIKEY:
+    IBM_CLOUD_SECRETS_MANAGER_API_APIKEY:
     secretKeyRef: ibmcloud-credentials
     key: apikey
-  IBM_CLOUD_SECRETS_MANAGER_API_ENDPOINT:
+    IBM_CLOUD_SECRETS_MANAGER_API_ENDPOINT:
     secretKeyRef: ibmcloud-credentials
     key: endpoint
-  IBM_CLOUD_SECRETS_MANAGER_API_AUTH_TYPE:
+    IBM_CLOUD_SECRETS_MANAGER_API_AUTH_TYPE:
     secretKeyRef: ibmcloud-credentials
     key: authtype
 
-  image:
+    image:
     repository: ghcr.io/external-secrets/kubernetes-external-secrets
     tag: master
+    
     ```
 
 1. To install the chart with the release named `kubernetes-external-secrets-release`:
