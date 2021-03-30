@@ -82,6 +82,9 @@ This is a sample chart to demonstrate running it on IBM Cloud
 
 1. Now the service is installed we need to create a secret in Secret Manager that we will make available in k8s. 
     ```
+    # If you're using secrets-manager plug-in version `0.0.8` or above, export the following variable: SECRETS_MANAGER_URL.
+    $ export SECRETS_MANAGER_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
+    # If you're using secrets-manager plug-in version 0.0.6 or below, export the following variable: IBM_CLOUD_SECRETS_MANAGER_API_URL.
     $ export IBM_CLOUD_SECRETS_MANAGER_API_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
     $ ibmcloud secrets-manager secret-create --secret-type username_password --metadata '{"collection_type": "application/vnd.ibm.secrets-manager.secret+json", "collection_total": 1}'  --resources '[{"name": "example-username-password-test-secret","description": "Extended description for my secret.","username": "user123","password": "cloudy-rainy-coffee-book"}]'
     
