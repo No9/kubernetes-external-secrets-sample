@@ -64,21 +64,16 @@ This is a sample chart to demonstrate running it on IBM Cloud
     key: endpoint
     IBM_CLOUD_SECRETS_MANAGER_API_AUTH_TYPE:
     secretKeyRef: ibmcloud-credentials
-    key: authtype
-
-    image:
-    repository: ghcr.io/external-secrets/kubernetes-external-secrets
-    tag: master
-    
+    key: authtype    
     ```
 
 1. To install the chart with the release named `kubernetes-external-secrets-release`:
     ```
-    $ helm install kubernetes-external-secrets-release . --skip-crds
+    $ helm install kubernetes-external-secrets-release .
     ```
     > **Tip:** A namespace can be specified by the `Helm` option '`--namespace kube-external-secrets`', however know this will not [autocreate a namespace](https://helm.sh/docs/faq/#automatically-creating-namespaces) like in Helm V2. To do that, also add the `--create-namespace` flag.
 
-    > **Note**: `--skip-crds` is required in order to ensure the custom resource manager is used and will work for backwards compatibility. In future 4.x releases, this will not be required. See below for how to [disable the custom resource manager](#installing-the-crd) via the chart.
+## Configure a username-password CRD
 
 1. Now the service is installed we need to create a secret in Secret Manager that we will make available in k8s. 
     ```
@@ -86,28 +81,28 @@ This is a sample chart to demonstrate running it on IBM Cloud
     $ export SECRETS_MANAGER_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
     # If you're using secrets-manager plug-in version 0.0.6 or below, export the following variable: IBM_CLOUD_SECRETS_MANAGER_API_URL.
     $ export IBM_CLOUD_SECRETS_MANAGER_API_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
-    $ ibmcloud secrets-manager secret-create --secret-type username_password --metadata '{"collection_type": "application/vnd.ibm.secrets-manager.secret+json", "collection_total": 1}'  --resources '[{"name": "example-username-password-test-secret","description": "Extended description for my secret.","username": "user123","password": "cloudy-rainy-coffee-book"}]'
+    $ ibmcloud secrets-manager secret-create --secret-type username_password --resources '[{"name": "example-username-password-test-secret","description": "Extended description for my secret.","username": "user123","password": "cloudy-rainy-coffee-book"}]'
     
     ..id..
     ..zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz.. 
     ```
 1. Now we will create a CRD that will pull the secrets from the secret manager and add it to the namespace in the cluster. 
-   Get the id from the output of the created secret and add update the `key` field in `ibmcloud-secrets-manager-example.yml`
+   Get the id from the output of the created secret and add update the `key` field in `username-password-example.yml`
 
     ```
     apiVersion: kubernetes-client.io/v1
     kind: ExternalSecret
     metadata:
-      name: ibmcloud-secrets-manager-example
+      name: username-password-example
     spec:
       backendType: ibmcloudSecretsManager
       data:
         # The guid id of the secret
-        - key: zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz
+        - key: <guid>
           name: username
           property: username
           secretType: username_password
-        - key: zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz
+        - key: <guid>
           name: password
           property: password
           secretType: username_password
@@ -115,13 +110,13 @@ This is a sample chart to demonstrate running it on IBM Cloud
 
 1. Apply the secret CRD to the cluster
     ```
-    $ kubectl apply -f ibmcloud-secrets-manager-example.yml
+    $ kubectl apply -f username-password-example.yml
     ```
 
 1. View the created secrets in the cluster
     ```
-    $ kubectl describe secrets ibmcloud-secrets-manager-example  
-      Name:         ibmcloud-secrets-manager-example
+    $ kubectl describe secrets username-password-example  
+      Name:         username-password-example
       Namespace:    default
       Labels:       <none>
       Annotations:  <none>
@@ -132,4 +127,53 @@ This is a sample chart to demonstrate running it on IBM Cloud
       ====
       password:  9 bytes
       username:  5 bytes
+    ```
+## Configure a arbitrary CRD
+
+1. Now the service is installed we need to create a secret in Secret Manager that we will make available in k8s. 
+    ```
+    # If you're using secrets-manager plug-in version `0.0.8` or above, export the following variable: SECRETS_MANAGER_URL.
+    $ export SECRETS_MANAGER_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
+    # If you're using secrets-manager plug-in version 0.0.6 or below, export the following variable: IBM_CLOUD_SECRETS_MANAGER_API_URL.
+    $ export IBM_CLOUD_SECRETS_MANAGER_API_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
+    $ ibmcloud secrets-manager secret-create --secret-type arbitrary --resources '[{"name": "example-arbitrary-test-secret","description": "Extended description for my secret.", "payload":"avalue"}]'
+    
+    ..id..
+    ..zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz.. 
+    ```
+1. Now we will create a CRD that will pull the secrets from the secret manager and add it to the namespace in the cluster. 
+   Get the id from the output of the created secret and add update the `key` field in `arbitrary-example.yml`
+
+    ```
+    apiVersion: kubernetes-client.io/v1
+    kind: ExternalSecret
+    metadata:
+      name: arbritrary-example
+    spec:
+      backendType: ibmcloudSecretsManager
+      data:
+        - key: b6f0c056-382c-3ea9-991b-9172a1652c9e 
+          name: example-arbitrary-test-secret
+          property: payload
+          secretType: arbitrary
+    ```
+
+1. Apply the secret CRD to the cluster
+    ```
+    $ kubectl apply -f arbitrary-example.yml
+    ```
+
+1. View the created secrets in the cluster
+    ```
+    $ kubectl describe secrets arbritrary-example 
+      Name:         arbritrary-example
+      Namespace:    default
+      Labels:       <none>
+      Annotations:  <none>
+
+      Type:  Opaque
+
+      Data
+      ====
+      example-arbitrary-test-secret:  6 bytes
     ```

@@ -1,0 +1,11 @@
+apiVersion: kubernetes-client.io/v1
+kind: ExternalSecret
+metadata:
+  name: arbritrary-example
+spec:
+  backendType: ibmcloudSecretsManager
+  data:
+    - key: b6f0c056-382c-3ea9-991b-9172a1652c9e 
+      name: example-arbitrary-test-secret
+      property: payload
+      secretType: arbitrary
