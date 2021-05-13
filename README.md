@@ -128,7 +128,7 @@ This is a sample chart to demonstrate running it on IBM Cloud
       password:  9 bytes
       username:  5 bytes
     ```
-## Configure a arbitrary CRD
+## Configure an arbitrary CRD
 
 1. Now the service is installed we need to create a secret in Secret Manager that we will make available in k8s. 
     ```
