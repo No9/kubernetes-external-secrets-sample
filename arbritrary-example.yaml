@@ -4,8 +4,11 @@ metadata:
   name: arbritrary-example
 spec:
   backendType: ibmcloudSecretsManager
-  data:
-    - key: b6f0c056-382c-3ea9-991b-9172a1652c9e 
+  data: 
+    # The guid id of the secret
+    # Created with ibmcloud secrets-manager secret-create --secret-type arbitrary \
+    # --resources '[{"name": "example-arbitrary-test-secret","description": "Extended description for my secret.", "payload":"avalue"}]'
+    - key: <guid> 
       name: example-arbitrary-test-secret
       property: payload
       secretType: arbitrary
