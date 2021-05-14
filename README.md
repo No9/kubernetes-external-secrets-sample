@@ -75,12 +75,15 @@ This is a sample chart to demonstrate running it on IBM Cloud
 
 ## Configure a username-password CRD
 
-1. Now the service is installed we need to create a secret in Secret Manager that we will make available in k8s. 
+Now the service is installed we need to create a `username_password` secret in Secret Manager that we will make available in k8s.
+
+1.  Ensure the secret manager environment variable is set
     ```
-    # If you're using secrets-manager plug-in version `0.0.8` or above, export the following variable: SECRETS_MANAGER_URL.
     $ export SECRETS_MANAGER_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
-    # If you're using secrets-manager plug-in version 0.0.6 or below, export the following variable: IBM_CLOUD_SECRETS_MANAGER_API_URL.
-    $ export IBM_CLOUD_SECRETS_MANAGER_API_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
+    ```
+
+1. Now add a secret to secret manager taking note of the id generated
+    ```    
     $ ibmcloud secrets-manager secret-create --secret-type username_password --resources '[{"name": "example-username-password-test-secret","description": "Extended description for my secret.","username": "user123","password": "cloudy-rainy-coffee-book"}]'
     
     ..id..
@@ -130,17 +133,21 @@ This is a sample chart to demonstrate running it on IBM Cloud
     ```
 ## Configure an arbitrary CRD
 
-1. Now the service is installed we need to create a secret in Secret Manager that we will make available in k8s. 
+Now the service is installed we need to create a `arbitrary` secret in Secret Manager that we will make available in k8s.
+
+1.  Ensure the secret manager environment variable is set
     ```
-    # If you're using secrets-manager plug-in version `0.0.8` or above, export the following variable: SECRETS_MANAGER_URL.
     $ export SECRETS_MANAGER_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
-    # If you're using secrets-manager plug-in version 0.0.6 or below, export the following variable: IBM_CLOUD_SECRETS_MANAGER_API_URL.
-    $ export IBM_CLOUD_SECRETS_MANAGER_API_URL=https://yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy.<Location>.secrets-manager.appdomain.cloud
+    ```
+
+1. Now add a secret to secret manager taking note of the id generated
+    ```
     $ ibmcloud secrets-manager secret-create --secret-type arbitrary --resources '[{"name": "example-arbitrary-test-secret","description": "Extended description for my secret.", "payload":"avalue"}]'
     
     ..id..
     ..zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz.. 
     ```
+    
 1. Now we will create a CRD that will pull the secrets from the secret manager and add it to the namespace in the cluster. 
    Get the id from the output of the created secret and add update the `key` field in `arbitrary-example.yml`
 
